@@ -163,6 +163,23 @@
     .tombol-konfirmasi:active {
       transform: scale(0.98);
     }
+
+    .tombol-izin {
+      display: inline-block;
+      padding: 14px 24px;
+      border: 0;
+      border-radius: 10px;
+      background: #168a3a;
+      color: white;
+      font-size: 19px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .tombol-izin:active {
+      transform: scale(0.98);
+    }
   </style>
 
 </head>
@@ -557,8 +574,8 @@
         hapusTampilanProses();
 
         if (
-          data.berhasil &&
-          data.status === "TERVERIFIKASI"
+          data.status === "TERVERIFIKASI" ||
+          data.status === "SUDAH_TERVERIFIKASI"
         ) {
 
           document.getElementById("hasil").innerHTML = `
@@ -579,28 +596,16 @@
               </div>
 
               <div class="pertanyaan">
-                Data ujian berhasil dicatat.
+                Identitas siswa sudah tercatat.
               </div>
 
+              <button
+                class="tombol-izin"
+                onclick="izinkanUjian()">
+                IZINKAN UJIAN
+              </button>
+
             </div>
-
-          `;
-
-        }
-
-        else if (
-          data.status === "SUDAH_TERVERIFIKASI"
-        ) {
-
-          document.getElementById("hasil").innerHTML = `
-
-            <div class="error">
-              ● SUDAH TERVERIFIKASI
-            </div>
-
-            <br>
-
-            Identitas siswa sudah tercatat untuk ujian.
 
           `;
 
@@ -633,6 +638,175 @@
     const url =
       API_URL +
       "?mode=catat_ujian" +
+      "&qr=" +
+      encodeURIComponent(siswaTerpilih.id) +
+      "&callback=" +
+      namaCallback;
+
+    const script =
+      document.createElement("script");
+
+    script.src = url;
+
+    script.onerror = function() {
+
+      hapusTampilanProses();
+
+      document.getElementById("hasil").innerHTML = `
+
+        <div class="error">
+          ● GAGAL MENGHUBUNGI SERVER
+        </div>
+
+      `;
+
+      delete window[namaCallback];
+
+    };
+
+    document.body.appendChild(script);
+
+    setTimeout(function() {
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+
+    }, 10000);
+
+  }
+
+
+  /*
+   * ==================================================
+   * IZINKAN UJIAN
+   * TERVERIFIKASI → DIIZINKAN
+   * ==================================================
+   */
+
+  function izinkanUjian() {
+
+    if (!siswaTerpilih) {
+      tampilkanError("DATA SISWA TIDAK DITEMUKAN.");
+      return;
+    }
+
+    tampilkanProses();
+
+    const proses =
+      document.getElementById("prosesIdentitas");
+
+    proses.querySelector(".proses-judul").textContent =
+      "MEMERIKSA IZIN UJIAN...";
+
+    proses.querySelector(".proses-pesan").textContent =
+      "Status ujian sedang diperbarui";
+
+    proses.querySelector(".proses-info").textContent =
+      "Mohon tunggu sebentar";
+
+    const namaCallback =
+      "izinkanUjianCallback";
+
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbwxeW6ZSki-s_3m04SUolyJ_Q1zEbGTgNNDDE4J4GVEV-gAyvJaspzzcLRhCFw5OE1yow/exec";
+
+    window[namaCallback] = function(data) {
+
+      try {
+
+        hapusTampilanProses();
+
+        if (
+          data.berhasil &&
+          data.status === "DIIZINKAN"
+        ) {
+
+          document.getElementById("hasil").innerHTML = `
+
+            <div class="konfirmasi">
+
+              <div class="berhasil">
+                ● UJIAN DIIZINKAN
+              </div>
+
+              <div class="nama">
+                ${data.nama}
+              </div>
+
+              <div class="data">
+                NIS : ${data.id}<br>
+                KELAS : ${data.kelas}
+              </div>
+
+              <div class="pertanyaan">
+                Siswa diizinkan mengikuti ujian.
+              </div>
+
+            </div>
+
+          `;
+
+        }
+
+        else if (
+          data.status === "SUDAH_DIIZINKAN"
+        ) {
+
+          document.getElementById("hasil").innerHTML = `
+
+            <div class="konfirmasi">
+
+              <div class="berhasil">
+                ● UJIAN SUDAH DIIZINKAN
+              </div>
+
+              <div class="nama">
+                ${data.nama}
+              </div>
+
+              <div class="data">
+                NIS : ${data.id}<br>
+                KELAS : ${data.kelas}
+              </div>
+
+              <div class="pertanyaan">
+                Siswa sudah diizinkan mengikuti ujian.
+              </div>
+
+            </div>
+
+          `;
+
+        }
+
+        else {
+
+          document.getElementById("hasil").innerHTML = `
+
+            <div class="error">
+              ● UJIAN BELUM DAPAT DIIZINKAN
+            </div>
+
+            <br>
+
+            ${data.pesan || "Terjadi kesalahan."}
+
+          `;
+
+        }
+
+      }
+
+      finally {
+        delete window[namaCallback];
+      }
+
+    };
+
+    const url =
+      API_URL +
+      "?mode=izinkan_ujian" +
       "&qr=" +
       encodeURIComponent(siswaTerpilih.id) +
       "&callback=" +
