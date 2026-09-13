@@ -197,6 +197,7 @@
 
   let scanner = null;
   let sedangMemproses = false;
+  let siswaTerpilih = null;
 
 
   /*
@@ -379,6 +380,13 @@
           data.status === "SISWA_DITEMUKAN"
         ) {
 
+          siswaTerpilih = {
+            id: data.id,
+            nis: data.nis,
+            nama: data.nama,
+            kelas: data.kelas
+          };
+
           document.getElementById("hasil").innerHTML = `
 
             <div class="konfirmasi">
@@ -507,26 +515,159 @@
 
   /*
    * ==================================================
-   * KONFIRMASI IDENTITAS
+   * KONFIRMASI IDENTITAS → CATAT KE UJIAN
    * ==================================================
-   *
-   * Tahap ini belum mencatat ke UJIAN.
-   * Belum membuka mesin ujian.
    */
 
   function konfirmasiIdentitas() {
 
-    document.getElementById("hasil").innerHTML = `
+    if (!siswaTerpilih) {
+      tampilkanError("DATA SISWA TIDAK DITEMUKAN.");
+      return;
+    }
 
-      <div class="berhasil">
-        ● IDENTITAS DIKONFIRMASI
-      </div>
+    tampilkanProses();
 
-      <br>
+    const proses =
+      document.getElementById("prosesIdentitas");
 
-      Identitas siswa telah dikonfirmasi.
+    proses.querySelector(".proses-judul").textContent =
+      "MENCATAT DATA UJIAN...";
 
-    `;
+    proses.querySelector(".proses-pesan").textContent =
+      "Data identitas sedang dicatat";
+
+    proses.querySelector(".proses-info").textContent =
+      "Mohon tunggu sebentar";
+
+    /*
+     * Callback khusus pencatatan UJIAN.
+     * Berbeda dari callback verifikasi agar tidak saling bertabrakan.
+     */
+    const namaCallback =
+      "catatUjianCallback";
+
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbwxeW6ZSki-s_3m04SUolyJ_Q1zEbGTgNNDDE4J4GVEV-gAyvJaspzzcLRhCFw5OE1yow/exec";
+
+    window[namaCallback] = function(data) {
+
+      try {
+
+        hapusTampilanProses();
+
+        if (
+          data.berhasil &&
+          data.status === "TERVERIFIKASI"
+        ) {
+
+          document.getElementById("hasil").innerHTML = `
+
+            <div class="konfirmasi">
+
+              <div class="berhasil">
+                ● IDENTITAS TERVERIFIKASI
+              </div>
+
+              <div class="nama">
+                ${data.nama}
+              </div>
+
+              <div class="data">
+                NIS : ${data.id}<br>
+                KELAS : ${data.kelas}
+              </div>
+
+              <div class="pertanyaan">
+                Data ujian berhasil dicatat.
+              </div>
+
+            </div>
+
+          `;
+
+        }
+
+        else if (
+          data.status === "SUDAH_TERVERIFIKASI"
+        ) {
+
+          document.getElementById("hasil").innerHTML = `
+
+            <div class="error">
+              ● SUDAH TERVERIFIKASI
+            </div>
+
+            <br>
+
+            Identitas siswa sudah tercatat untuk ujian.
+
+          `;
+
+        }
+
+        else {
+
+          document.getElementById("hasil").innerHTML = `
+
+            <div class="error">
+              ● GAGAL MENCATAT DATA UJIAN
+            </div>
+
+            <br>
+
+            ${data.pesan || "Terjadi kesalahan."}
+
+          `;
+
+        }
+
+      }
+
+      finally {
+        delete window[namaCallback];
+      }
+
+    };
+
+    const url =
+      API_URL +
+      "?mode=catat_ujian" +
+      "&qr=" +
+      encodeURIComponent(siswaTerpilih.id) +
+      "&callback=" +
+      namaCallback;
+
+    const script =
+      document.createElement("script");
+
+    script.src = url;
+
+    script.onerror = function() {
+
+      hapusTampilanProses();
+
+      document.getElementById("hasil").innerHTML = `
+
+        <div class="error">
+          ● GAGAL MENGHUBUNGI SERVER
+        </div>
+
+      `;
+
+      delete window[namaCallback];
+
+    };
+
+    document.body.appendChild(script);
+
+    setTimeout(function() {
+
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+
+    }, 10000);
 
   }
 
