@@ -261,6 +261,17 @@ NIS : ${data.nis}
 
 <br>
 KELAS : ${data.kelas}
+<br><br>
+
+<div>
+  Apakah identitas ini benar?
+</div>
+
+<br>
+
+<button onclick="konfirmasiIdentitas()">
+  YA, IDENTITAS SAYA BENAR
+</button>
 
 <br><br>
 
@@ -396,6 +407,19 @@ KELAS : ${data.kelas}
    * ==================================================
    */
 function konfirmasiIdentitas() {
+
+  document.getElementById("hasil").innerHTML = `
+    <div class="berhasil">
+      ● IDENTITAS DIKONFIRMASI
+    </div>
+
+    <br>
+
+    Identitas siswa telah dikonfirmasi.
+  `;
+
+}
+  function konfirmasiIdentitas() {
 
   document.getElementById("hasil").innerHTML = `
     <div class="berhasil">
