@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 user-scalable=no">
+
+  <title>Login Ujian Kimia</title>
+
+  <script src="https://unpkg.com/html5-qrcode"
+          type="text/javascript"></script>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      background: #f5f7fa;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 8px 0 4px;
+      font-size: 25px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    #reader {
+      width: 100%;
+      max-width: 500px;
+      margin: auto;
+      background: #000;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    #hasil {
+      max-width: 500px;
+      margin: 15px auto 0;
+      padding: 18px;
+      background: white;
+      border-radius: 12px;
+      font-size: 20px;
+    }
+
+    .menunggu {
+      color: #777;
+    }
+
+    .berhasil {
+      color: #168a3a;
+      font-weight: bold;
+    }
+
+    .error {
+      color: #c62828;
+      font-weight: bold;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+  <h1>LOGIN UJIAN KIMIA</h1>
+
+  <div class="subtitle">
+    Arahkan QR siswa ke kamera
+  </div>
+
+  <div id="reader"></div>
+
+  <div id="hasil">
+
+    <div class="menunggu">
+      MENUNGGU SCAN
+    </div>
+
+  </div>
+
+
+<script>
+
+  /*
+   * ==================================================
+   * SCANNER
+   * Mengikuti pola Index ABSENSI yang sudah berhasil
+   * ==================================================
+   */
+
+  let scanner = null;
+
+  let sedangMemproses = false;
+
+
+  /*
+   * ==================================================
+   * MULAI SCANNER
+   * ==================================================
+   */
+
+  function mulaiScanner() {
+
+    scanner = new Html5Qrcode("reader");
+
+
+    scanner.start(
+
+      {
+        facingMode: "environment"
+      },
+
+      {
+        fps: 10,
+
+        qrbox: {
+          width: 250,
+          height: 250
+        }
+
+      },
+
+
+      function(decodedText) {
+
+        if (sedangMemproses) {
+          return;
+        }
+
+        sedangMemproses = true;
+
+
+        tampilkanHasil(decodedText);
+
+      },
+
+
+      function(errorMessage) {
+
+        /*
+         * Tidak melakukan apa-apa.
+         *
+         * Scanner tetap aktif mencari QR.
+         */
+
+      }
+
+    )
+
+    .then(function() {
+
+      document.getElementById("hasil").innerHTML = `
+
+        <div class="menunggu">
+          MENUNGGU SCAN
+        </div>
+
+      `;
+
+    })
+
+    .catch(function(error) {
+
+      console.error(error);
+
+      tampilkanError(
+        "KAMERA TIDAK DAPAT DIAKTIFKAN."
+      );
+
+    });
+
+  }
+
+
+  /*
+   * ==================================================
+   * HASIL SCAN
+   * ==================================================
+   */
+
+  function tampilkanHasil(qrId) {
+
+    document.getElementById("hasil").innerHTML = `
+
+      <div class="berhasil">
+        ● QR TERBACA
+      </div>
+
+      <br>
+
+      ID SISWA
+
+      <br><br>
+
+      <strong>
+        ${qrId}
+      </strong>
+
+    `;
+
+
+    /*
+     * Setelah 2 detik,
+     * kembali menunggu scan.
+     *
+     * KAMERA TIDAK DIHENTIKAN.
+     */
+
+    setTimeout(function() {
+
+      sedangMemproses = false;
+
+      document.getElementById("hasil").innerHTML = `
+
+        <div class="menunggu">
+          MENUNGGU SCAN
+        </div>
+
+      `;
+
+    }, 2000);
+
+  }
+
+
+  /*
+   * ==================================================
+   * ERROR
+   * ==================================================
+   */
+
+  function tampilkanError(pesan) {
+
+    document.getElementById("hasil").innerHTML = `
+
+      <div class="error">
+        ● ${pesan}
+      </div>
+
+    `;
+
+  }
+
+
+  /*
+   * ==================================================
+   * MULAI
+   * ==================================================
+   */
+
+  window.onload = function() {
+
+    mulaiScanner();
+
+  };
+
+</script>
+
+
+</body>
+
+</html>
