@@ -81,6 +81,23 @@
       font-weight: bold;
     }
 
+    .konfirmasi {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 10px;
+      background: #168a3a;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .konfirmasi:active {
+      transform: scale(0.98);
+    }
+
   </style>
 
 </head>
@@ -155,7 +172,6 @@
 
         sedangMemproses = true;
 
-
         tampilkanHasil(decodedText);
 
       },
@@ -226,11 +242,11 @@
 
 
     /*
-     * Membuat callback unik
+     * Callback tetap seperti versi yang sudah berhasil
      */
 
     const namaCallback =
-      "verifikasiCallback_" + Date.now();
+      "tesCallback";
 
 
     /*
@@ -264,6 +280,16 @@
 
             KELAS : ${data.kelas}
 
+            <div style="margin-top: 18px;">
+              Apakah identitas ini benar?
+            </div>
+
+            <button
+              class="konfirmasi"
+              onclick="konfirmasiIdentitas()">
+              YA, IDENTITAS SAYA BENAR
+            </button>
+
           `;
 
         }
@@ -294,25 +320,6 @@
         delete window[namaCallback];
 
       }
-
-
-      /*
-       * Siapkan scanner kembali
-       */
-
-      setTimeout(function() {
-
-        sedangMemproses = false;
-
-        document.getElementById("hasil").innerHTML = `
-
-          <div class="menunggu">
-            MENUNGGU SCAN
-          </div>
-
-        `;
-
-      }, 4000);
 
     };
 
@@ -357,19 +364,7 @@
 
       delete window[namaCallback];
 
-      setTimeout(function() {
-
-        sedangMemproses = false;
-
-        document.getElementById("hasil").innerHTML = `
-
-          <div class="menunggu">
-            MENUNGGU SCAN
-          </div>
-
-        `;
-
-      }, 3000);
+      sedangMemproses = false;
 
     };
 
@@ -390,6 +385,31 @@
       }
 
     }, 10000);
+
+  }
+
+
+  /*
+   * ==================================================
+   * KONFIRMASI IDENTITAS
+   * Tahap ini BELUM mencatat ke UJIAN.
+   * Hanya untuk menguji tombol konfirmasi.
+   * ==================================================
+   */
+
+  function konfirmasiIdentitas() {
+
+    document.getElementById("hasil").innerHTML = `
+
+      <div class="berhasil">
+        ● IDENTITAS DIKONFIRMASI
+      </div>
+
+      <br>
+
+      Identitas siswa telah dikonfirmasi.
+
+    `;
 
   }
 
