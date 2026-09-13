@@ -246,23 +246,33 @@
           document.getElementById("hasil").innerHTML = `
 
             <div class="berhasil">
-              ● IDENTITAS DITEMUKAN
-            </div>
+  ● IDENTITAS DITEMUKAN
+</div>
 
-            <br>
+<br>
 
-            <strong>
-              ${data.nama}
-            </strong>
+<strong>
+  ${data.nama}
+</strong>
 
-            <br><br>
+<br><br>
 
-            NIS : ${data.nis}
+NIS : ${data.nis}
 
-            <br>
+<br>
+KELAS : ${data.kelas}
 
-            KELAS : ${data.kelas}
+<br><br>
 
+<div>
+  Apakah identitas ini benar?
+</div>
+
+<br>
+
+<button onclick="konfirmasiIdentitas()">
+  YA, IDENTITAS SAYA BENAR
+</button>
           `;
 
         }
@@ -299,20 +309,7 @@
        * Siapkan scanner kembali
        */
 
-      setTimeout(function() {
-
-        sedangMemproses = false;
-
-        document.getElementById("hasil").innerHTML = `
-
-          <div class="menunggu">
-            MENUNGGU SCAN
-          </div>
-
-        `;
-
-      }, 4000);
-
+      
     };
 
 
@@ -398,7 +395,19 @@
    * ERROR
    * ==================================================
    */
+function konfirmasiIdentitas() {
 
+  document.getElementById("hasil").innerHTML = `
+    <div class="berhasil">
+      ● IDENTITAS DIKONFIRMASI
+    </div>
+
+    <br>
+
+    Identitas siswa telah dikonfirmasi.
+  `;
+
+}
   function tampilkanError(pesan) {
 
     document.getElementById("hasil").innerHTML = `
