@@ -205,30 +205,98 @@
 
   function tampilkanHasil(qrId) {
 
-    document.getElementById("hasil").innerHTML = `
+  document.getElementById("hasil").innerHTML = `
 
-      <div class="berhasil">
-        ● QR TERBACA
-      </div>
+    <div class="menunggu">
+      MEMERIKSA IDENTITAS...
+    </div>
 
-      <br>
+  `;
 
-      ID SISWA
 
-      <br><br>
+  /*
+   * ==================================================
+   * API APPS SCRIPT
+   * ==================================================
+   */
 
-      <strong>
-        ${qrId}
-      </strong>
+  const API_URL =
+    "https://script.google.com/macros/s/AKfycbwxeW6ZSki-s_3m04SUolyJ_Q1zEbGTgNNDDE4J4GVEV-gAyvJaspzzcLRhCFw5OE1yow/exec";
 
-    `;
+
+  /*
+   * Membuat callback unik
+   */
+
+  const namaCallback =
+    "verifikasiCallback_" + Date.now();
+
+
+  /*
+   * Fungsi menerima hasil dari Apps Script
+   */
+
+  window[namaCallback] = function(data) {
+
+    try {
+
+      if (data.berhasil &&
+          data.status === "SISWA_DITEMUKAN") {
+
+        document.getElementById("hasil").innerHTML = `
+
+          <div class="berhasil">
+            ● IDENTITAS DITEMUKAN
+          </div>
+
+          <br>
+
+          <strong>
+            ${data.nama}
+          </strong>
+
+          <br><br>
+
+          NIS : ${data.nis}
+
+          <br>
+
+          KELAS : ${data.kelas}
+
+        `;
+
+      }
+
+      else {
+
+        document.getElementById("hasil").innerHTML = `
+
+          <div class="error">
+            ● IDENTITAS TIDAK DITEMUKAN
+          </div>
+
+          <br>
+
+          ID:
+          <strong>
+            ${qrId}
+          </strong>
+
+        `;
+
+      }
+
+    }
+
+    finally {
+
+      delete window[namaCallback];
+
+    }
 
 
     /*
-     * Setelah 2 detik,
-     * kembali menunggu scan.
-     *
-     * KAMERA TIDAK DIHENTIKAN.
+     * Siapkan scanner kembali
      */
 
     setTimeout(function() {
@@ -243,11 +311,86 @@
 
       `;
 
-    }, 2000);
+    }, 4000);
 
-  }
+  };
 
 
+  /*
+   * ==================================================
+   * URL API VERIFIKASI
+   * ==================================================
+   */
+
+  const url =
+    API_URL +
+    "?mode=verifikasi" +
+    "&qr=" +
+    encodeURIComponent(qrId) +
+    "&callback=" +
+    namaCallback;
+
+
+  /*
+   * ==================================================
+   * KIRIM REQUEST JSONP
+   * ==================================================
+   */
+
+  const script =
+    document.createElement("script");
+
+
+  script.src = url;
+
+
+  script.onerror = function() {
+
+    document.getElementById("hasil").innerHTML = `
+
+      <div class="error">
+        ● GAGAL MENGHUBUNGI SERVER
+      </div>
+
+    `;
+
+    delete window[namaCallback];
+
+    setTimeout(function() {
+
+      sedangMemproses = false;
+
+      document.getElementById("hasil").innerHTML = `
+
+        <div class="menunggu">
+          MENUNGGU SCAN
+        </div>
+
+      `;
+
+    }, 3000);
+
+  };
+
+
+  document.body.appendChild(script);
+
+
+  /*
+   * Hapus script setelah selesai
+   */
+
+  setTimeout(function() {
+
+    if (script.parentNode) {
+
+      script.parentNode.removeChild(script);
+
+    }
+
+  }, 10000);
+
+}
   /*
    * ==================================================
    * ERROR
