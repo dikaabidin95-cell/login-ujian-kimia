@@ -245,26 +245,23 @@
 
         document.getElementById("hasil").innerHTML = `
 
-          <div class="berhasil">
-            ● IDENTITAS DITEMUKAN
-          </div>
+  <div class="berhasil" style="margin-bottom: 12px;">
+    ● IDENTITAS DITEMUKAN
+  </div>
 
-          <br>
+  <div style="margin-bottom: 8px;">
+    <strong>${data.nama}</strong>
+  </div>
 
-          <strong>
-            ${data.nama}
-          </strong>
+  <div>
+    NIS : ${data.nis}
+  </div>
 
-          <br><br>
+  <div style="margin-top: 4px;">
+    KELAS : ${data.kelas}
+  </div>
 
-          NIS : ${data.nis}
-
-          <br>
-
-          KELAS : ${data.kelas}
-
-        `;
-
+`;
       }
 
       else {
