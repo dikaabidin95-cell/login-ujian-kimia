@@ -180,6 +180,23 @@
     .tombol-izin:active {
       transform: scale(0.98);
     }
+
+    .tombol-buka {
+      display: inline-block;
+      padding: 14px 28px;
+      border: 0;
+      border-radius: 10px;
+      background: #168a3a;
+      color: white;
+      font-size: 19px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .tombol-buka:active {
+      transform: scale(0.98);
+    }
   </style>
 
 </head>
@@ -348,6 +365,16 @@
     document.getElementById("hasil").style.display = "block";
 
   }
+
+
+  /*
+   * ==================================================
+   * WEB APP UJIAN v4.4.1
+   * ==================================================
+   */
+
+  const EXAM_URL =
+    "https://script.google.com/macros/s/AKfycbyBgaFV0dy_nz9iRg_57k0DSJVTPLQh9re8e4uhgPomd0T-mtsTSVb-NOndJ4BoFDA1/exec";
 
 
   /*
@@ -743,6 +770,12 @@
                 Siswa diizinkan mengikuti ujian.
               </div>
 
+              <button
+                class="tombol-buka"
+                onclick="bukaUjian()">
+                BUKA UJIAN
+              </button>
+
             </div>
 
           `;
@@ -773,6 +806,12 @@
               <div class="pertanyaan">
                 Siswa sudah diizinkan mengikuti ujian.
               </div>
+
+              <button
+                class="tombol-buka"
+                onclick="bukaUjian()">
+                BUKA UJIAN
+              </button>
 
             </div>
 
@@ -842,6 +881,19 @@
       }
 
     }, 10000);
+
+  }
+
+
+  /*
+   * ==================================================
+   * BUKA UJIAN
+   * ==================================================
+   */
+
+  function bukaUjian() {
+
+    window.location.href = EXAM_URL;
 
   }
 
